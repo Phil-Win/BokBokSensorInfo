@@ -1,6 +1,8 @@
 package com.projectbokbok.cloudfunctions.sensorinfo.data;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RawSensorData {
   private String device;
@@ -38,5 +40,24 @@ public class RawSensorData {
 
   public void setValue(String value) {
     this.value = value;
+  }
+
+  @Override
+  public String toString() {
+    return "RawSensorData{" +
+      "device='" + device + '\'' +
+      ", sensor='" + sensor + '\'' +
+      ", timestamp=" + timestamp +
+      ", value='" + value + '\'' +
+      '}';
+  }
+
+  public Map<String, Object> toMap() {
+    Map<String, Object> map = new HashMap<String, Object>();
+    map.put("device", device);
+    map.put("sensor", sensor);
+    map.put("timestamp", timestamp);
+    map.put("value", value);
+    return map;
   }
 }
