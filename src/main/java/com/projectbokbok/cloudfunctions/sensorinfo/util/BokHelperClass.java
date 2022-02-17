@@ -23,10 +23,7 @@ public class BokHelperClass {
     InvalidSensorData invalidSensorData = new InvalidSensorData();
     invalidSensorData.setPayload(new String(Base64.getDecoder().decode(pubSubMessage.data)));
     invalidSensorData.setTimestamp(new Timestamp(new Date().getTime()));
-    StringWriter sw = new StringWriter();
-    PrintWriter pw = new PrintWriter(sw);
-    exception.printStackTrace(pw);
-    invalidSensorData.setError(sw.toString());
+    invalidSensorData.setError(exception.getMessage());
     return invalidSensorData;
   }
 }
