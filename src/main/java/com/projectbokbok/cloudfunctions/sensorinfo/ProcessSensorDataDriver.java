@@ -3,7 +3,6 @@ package com.projectbokbok.cloudfunctions.sensorinfo;
 import com.google.cloud.functions.BackgroundFunction;
 import com.google.cloud.functions.Context;
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.projectbokbok.cloudfunctions.sensorinfo.data.PubSubMessage;
 import com.projectbokbok.cloudfunctions.sensorinfo.data.RawSensorData;
 import com.projectbokbok.cloudfunctions.sensorinfo.exception.BokBokBigQueryException;
@@ -28,18 +27,19 @@ public class ProcessSensorDataDriver implements BackgroundFunction<PubSubMessage
         SENSOR_DATABASE,
         RAW_TABLE_NAME,
         rawSensorData
-        .toMap()
+          .toMap()
       );
     }catch (Exception e) {
+      //logger.info("Error Message: ");
       try {
         BokHelperClass.insertIndividualRecordToBigQueryTable(
           PROJECT_ID,
           SENSOR_DATABASE,
           INVALID_TABLE_NAME,
           BokHelperClass.generateInvalidSensorData(
-            (e.getClass().equals(JsonSyntaxException.class) || e.getClass().equals(IllegalArgumentException.class)) ? e.getClass().getName() : e.getMessage(),
+            e.getClass().getName(),
             message)
-          .toMap()
+            .toMap()
         );
       } catch (BokBokBigQueryException bokBokBigQueryException) {
         logger.info("Exception thrown when trying to push error to invalid BQ table. Printing to logs");
