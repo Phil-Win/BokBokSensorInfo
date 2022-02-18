@@ -9,47 +9,59 @@ import com.projectbokbok.cloudfunctions.sensorinfo.data.PubSubMessage;
 import com.projectbokbok.cloudfunctions.sensorinfo.data.RawSensorData;
 import com.projectbokbok.cloudfunctions.sensorinfo.util.BokHelperClass;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
-import java.util.Date;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import static com.projectbokbok.cloudfunctions.sensorinfo.util.Constants.*;
-import static com.projectbokbok.cloudfunctions.sensorinfo.util.Constants.INVALID_TABLE_NAME;
 
 public class ProcessSensorDataDriverTest implements BackgroundFunction<PubSubMessage> {
   private static final Logger logger = Logger.getLogger(ProcessSensorDataDriverTest.class.getName());
-  private SimpleDateFormat sdf = new SimpleDateFormat(TIME_FORMAT_1);
 
   @Override
   public void accept(PubSubMessage message, Context context) {
-    BigQuery bigquery = BigQueryOptions.newBuilder().setProjectId(PROJECT_ID)
-      .build().getService();
-    TableId tableId = TableId.of(SENSOR_DATABASE_TEST, RAW_TABLE_NAME);
+    Gson gson = BokHelperClass.gsonCreator();
+    Table table     = BokHelperClass.tableFinder(PROJECT_ID, SENSOR_DATABASE_TEST, RAW_TABLE_NAME);
     try {
       if (message.data == null) {
         throw new Exception("Incoming data is null");
       }
       String data = new String(Base64.getDecoder().decode(message.data));
-      Gson gson = BokHelperClass.gsonCreator();
       RawSensorData rawSensorData = gson.fromJson(data, RawSensorData.class);
-      InsertAllResponse response = bigquery.insertAll(
-        InsertAllRequest.newBuilder(tableId).addRow(rawSensorData.toMap()).build()
-      );
-
-      logger.info("Printing Sensor data : " + rawSensorData.toString());
+      InsertAllResponse response  = table.insert(
+        Collections.singletonList(InsertAllRequest.RowToInsert.of(rawSensorData.toMap())),
+        true, true);
+      if (response.hasErrors()) {
+        StringBuilder error = new StringBuilder();
+        error.append("Insert to big query had errors : ").append(System.lineSeparator());
+        for (Map.Entry<Long, List<BigQueryError>> entry : response.getInsertErrors().entrySet())  {
+          error.append("Entry Number : ").append(entry.getKey());
+          for (BigQueryError bigQueryError : entry.getValue()) {
+            error.append(System.lineSeparator()).append(bigQueryError.getMessage());
+          }
+        }
+        throw new Exception(error.toString());
+      }
     } catch (Exception e) {
-      tableId = TableId.of(SENSOR_DATABASE_TEST, INVALID_TABLE_NAME);
+      table     = BokHelperClass.tableFinder(PROJECT_ID, SENSOR_DATABASE_TEST, INVALID_TABLE_NAME);
       InvalidSensorData invalidSensorData = BokHelperClass.generateInvalidSensorData(e, message);
-      logger.info("Printing the error json : " + new Gson().toJson(invalidSensorData));
-      InsertAllResponse response = bigquery.insertAll(
-        InsertAllRequest.newBuilder(tableId).addRow(invalidSensorData.toMap()).build()
-      );
+      InsertAllResponse response  = table.insert(
+        Collections.singletonList(InsertAllRequest.RowToInsert.of(invalidSensorData.toMap())),
+        true, true);
+      if (response.hasErrors()) {
+        StringBuilder error = new StringBuilder();
+        error.append("Insert to big query had errors : ").append(System.lineSeparator());
+        for (Map.Entry<Long, List<BigQueryError>> entry : response.getInsertErrors().entrySet())  {
+          error.append("Entry Number : ").append(entry.getKey());
+          for (BigQueryError bigQueryError : entry.getValue()) {
+            error.append(System.lineSeparator()).append(bigQueryError.getMessage());
+          }
+        }
+        logger.info("ERROR While trying to push data to Invalid : " + error.toString());
+      }
     }
   }
-
-
 }

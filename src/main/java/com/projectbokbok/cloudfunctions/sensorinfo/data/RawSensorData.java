@@ -1,8 +1,12 @@
 package com.projectbokbok.cloudfunctions.sensorinfo.data;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.projectbokbok.cloudfunctions.sensorinfo.util.Constants.TIME_FORMAT;
+
 
 public class RawSensorData {
   private String device;
@@ -54,9 +58,10 @@ public class RawSensorData {
 
   public Map<String, Object> toMap() {
     Map<String, Object> map = new HashMap<String, Object>();
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(TIME_FORMAT);
     map.put("device", device);
     map.put("sensor", sensor);
-    map.put("timestamp", timestamp);
+    map.put("timestamp", simpleDateFormat.format(timestamp));
     map.put("value", value);
     return map;
   }
