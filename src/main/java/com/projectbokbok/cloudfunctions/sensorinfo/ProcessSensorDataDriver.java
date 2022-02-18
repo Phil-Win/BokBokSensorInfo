@@ -48,7 +48,6 @@ public class ProcessSensorDataDriver implements BackgroundFunction<PubSubMessage
     } catch (Exception e) {
       table     = BokHelperClass.tableFinder(PROJECT_ID, SENSOR_DATABASE, INVALID_TABLE_NAME);
       InvalidSensorData invalidSensorData = BokHelperClass.generateInvalidSensorData(e, message);
-      logger.info("Printing the error json : " + gson.toJson(invalidSensorData));
       InsertAllResponse response  = table.insert(
         Collections.singletonList(InsertAllRequest.RowToInsert.of(invalidSensorData.toMap())),
         true, true);
