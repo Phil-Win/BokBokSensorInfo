@@ -6,6 +6,7 @@ import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableId;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.projectbokbok.cloudfunctions.sensorinfo.data.ExceptionSummaryData;
 import com.projectbokbok.cloudfunctions.sensorinfo.data.InvalidSensorData;
 import com.projectbokbok.cloudfunctions.sensorinfo.data.PubSubMessage;
 
@@ -25,7 +26,12 @@ public class BokHelperClass {
     InvalidSensorData invalidSensorData = new InvalidSensorData();
     invalidSensorData.setPayload(new String(Base64.getDecoder().decode(pubSubMessage.data)));
     invalidSensorData.setTimestamp(new Timestamp(new Date().getTime()));
-    invalidSensorData.setError(exception.getStackTrace()[0].getLineNumber() + ": "  +exception.getMessage());
+    invalidSensorData.setError(
+      new ExceptionSummaryData(
+        exception.getStackTrace()[0].getLineNumber(),
+        exception.getStackTrace()[0].getFileName())
+        .toString()
+    );
     return invalidSensorData;
   }
 
