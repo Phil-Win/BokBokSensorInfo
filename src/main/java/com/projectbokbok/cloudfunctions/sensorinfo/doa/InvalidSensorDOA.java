@@ -7,12 +7,10 @@ import com.projectbokbok.cloudfunctions.sensorinfo.exception.BokBokBigQueryExcep
 import com.projectbokbok.cloudfunctions.sensorinfo.util.BokHelperClass;
 
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.Date;
 import java.util.logging.Logger;
 
 import static com.projectbokbok.cloudfunctions.sensorinfo.util.Constants.TIME_FORMAT;
@@ -34,7 +32,7 @@ public class InvalidSensorDOA {
     invalidSensorData.setPayload(new String(Base64.getDecoder().decode(pubSubMessage.data)));
     invalidSensorData.setError(errorMessageToStore);
     invalidSensorData.setTimestamp(Timestamp.from(Instant.parse(pubSubMessage.publishTime)));
-    
+
     InsertAllResponse response  = this.invalidSensorTable.insert(
       Collections.singletonList(InsertAllRequest.RowToInsert.of(invalidSensorData.toMap())),
       true, true);
