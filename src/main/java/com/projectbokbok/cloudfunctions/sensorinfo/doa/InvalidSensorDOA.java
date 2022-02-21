@@ -9,6 +9,7 @@ import com.projectbokbok.cloudfunctions.sensorinfo.util.BokHelperClass;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
@@ -32,12 +33,8 @@ public class InvalidSensorDOA {
     InvalidSensorData invalidSensorData = new InvalidSensorData();
     invalidSensorData.setPayload(new String(Base64.getDecoder().decode(pubSubMessage.data)));
     invalidSensorData.setError(errorMessageToStore);
-    try {
-      invalidSensorData.setTimestamp(new Timestamp(sdf.parse(pubSubMessage.publishTime).getTime()));
-    } catch (ParseException e ) {
-      logger.info("Error parsing time : " + pubSubMessage.publishTime);
-      invalidSensorData.setTimestamp(new Timestamp(new Date().getTime()));
-    }
+    invalidSensorData.setTimestamp(Timestamp.from(Instant.parse(pubSubMessage.publishTime)));
+    
     InsertAllResponse response  = this.invalidSensorTable.insert(
       Collections.singletonList(InsertAllRequest.RowToInsert.of(invalidSensorData.toMap())),
       true, true);
