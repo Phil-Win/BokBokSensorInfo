@@ -1,1 +1,1 @@
-{"device":"exampleDevice1","sensor":"sensor1","timestamp":"2020-02-17 01:02:03 EST","value":"12345_reg"}
+{"device":"exampleDevice1","sensor":"sensor1","timestamp":"2020-02-17T01:02:03Z","value":"12345_reg2"}

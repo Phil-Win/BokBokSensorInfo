@@ -6,5 +6,5 @@ public class Constants {
   public final static String SENSOR_DATABASE      = "sensordata";
   public final static String SENSOR_DATABASE_TEST = "sensordatatest";
   public final static String PROJECT_ID           = "project-bok-bok";
-  public final static String TIME_FORMAT        = "yyyy-MM-dd HH:mm:ss z";
+  public final static String TIME_FORMAT        = "yyyy-MM-ddTHH:mm:ssz";
 }
