@@ -43,7 +43,7 @@ public class RawSensorDOA {
   private RawSensorData extractRawSensorDataFromPubSubMessage(PubSubMessage pubSubMessage) {
     String data = new String(Base64.getDecoder().decode(pubSubMessage.data));
     RawSensorData rawSensorData = gson.fromJson(data, RawSensorData.class);
-    rawSensorData.setTimestamp(Timestamp.from(Instant.parse(pubSubMessage.publishTime)));
+    rawSensorData.setTimestamp(Timestamp.from(Instant.now()));
     return rawSensorData;
   }
 

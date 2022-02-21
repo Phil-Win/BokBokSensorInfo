@@ -31,7 +31,7 @@ public class InvalidSensorDOA {
     InvalidSensorData invalidSensorData = new InvalidSensorData();
     invalidSensorData.setPayload(new String(Base64.getDecoder().decode(pubSubMessage.data)));
     invalidSensorData.setError(errorMessageToStore);
-    invalidSensorData.setTimestamp(Timestamp.from(Instant.parse(pubSubMessage.publishTime)));
+    invalidSensorData.setTimestamp(Timestamp.from(Instant.now()));
 
     InsertAllResponse response  = this.invalidSensorTable.insert(
       Collections.singletonList(InsertAllRequest.RowToInsert.of(invalidSensorData.toMap())),
