@@ -8,6 +8,7 @@ import com.projectbokbok.cloudfunctions.sensorinfo.doa.RawSensorDOA;
 import com.projectbokbok.cloudfunctions.sensorinfo.exception.BokBokBigQueryException;
 
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.logging.Logger;
 
 import static com.projectbokbok.cloudfunctions.sensorinfo.util.Constants.*;
@@ -20,7 +21,9 @@ public class ProcessSensorDataDriverTest implements BackgroundFunction<PubSubMes
   public void accept(PubSubMessage message, Context context) {
     RawSensorDOA rawSensorDOA         = new RawSensorDOA(PROJECT_ID, SENSOR_DATABASE_TEST, RAW_TABLE_NAME);
     InvalidSensorDOA invalidSensorDOA = new InvalidSensorDOA(PROJECT_ID, SENSOR_DATABASE_TEST, INVALID_TABLE_NAME);
-
+    if (IGNORE_LIST.contains(new String(Base64.getDecoder().decode(message.data)))) {
+      return;
+    }
     try {
       rawSensorDOA.insertIndividualRecordToBigQueryTable(message);
     }catch (Exception e) {
